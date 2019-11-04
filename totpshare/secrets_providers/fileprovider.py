@@ -41,7 +41,7 @@ class provider(secretsprovider):
             enc_secret = f.read()
             enc_secret = base64.b64decode(enc_secret)
             iv = enc_secret[:self._block_size]
-            cipher = AES.new(self._key, self._block_size, iv)
+            cipher = AES.new(self._key, AES.MODE_CBC, iv)
             secret = self._unpad(cipher.decrypt(enc_secret[self._block_size:])).decode('utf-8')
             return secret
 

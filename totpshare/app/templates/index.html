@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <table>
+        <tr><th>Retrieve</th></th><th>Name</th><th>Display Name</th></tr>
+        {% for secret in secrets %}
+        <tr><td><a href="{{ url_for('view_secret', key=secret.key)}}">Click</a></td><td>{{secret.id}}</td><td>{{secret.display_name}}</td></tr>
+        {% endfor %}
+    </table>
+{% endblock %}
