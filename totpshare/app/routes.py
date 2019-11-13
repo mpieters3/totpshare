@@ -16,7 +16,7 @@ def index():
 def view_secret(key: str):
     key = secrets.get_secret(key)
     token, time_remaining = get_token(key)
-    return render_template('secret.html', token=token, time_remaining=time_remaining)
+    return jsonify(token=token, time_remaining=time_remaining)
 
 @app.route('/api/secrets', methods=['GET'])
 def list_secrets():
@@ -38,3 +38,11 @@ def get_secret(key: str):
         'token': token,
         'time_remaining': time_remaining
     })
+
+@app.route('')
+def delete_token(key: str):
+    pass
+
+@app.route('')
+def add_token(id: str, display_name: str, key: str):
+    pass
