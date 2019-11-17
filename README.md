@@ -32,7 +32,7 @@ Uses either a client_secrets.json per (flask-oidc)[https://flask-oidc.readthedoc
 - OIDC_CLIENT_SECRETS : either the path to a (client_secrets.json)[https://github.com/okta/samples-python-flask/blob/master/okta-hosted-login/client_secrets.json.dist] or set to GENERATED.
 - AUTHZ_ADMIN : If set to a name, the 'groups' claim in the id token will be checked to see if the user is a member of this before allowing access to the 'Admin' page
 
-#### GENERAtED
+#### GENERATED
 If OIDC_CLIENT_SECRETS is set to generated, the following parameters are used to generate a client_secrets.json, instead. 
 - OIDC_PROVIDER : the auth server/issuer url (eg: https://dev-xxxxxx.okta.com/oauth2/default). if the issuer and auth server don't match, then this won't work
 - OIDC_CLIENT_ID : the application client id
