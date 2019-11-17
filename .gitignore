@@ -102,3 +102,9 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# ignore flask_session from local runs
+totpshare/flask_session/
+totpshare/topt_keys/
+# ignore client_secrets - shouldn't store those
+totpshare/client_secrets.json

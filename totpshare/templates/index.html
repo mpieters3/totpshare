@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <table class="table table-striped">
+      <thead class="thead-dark">
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">Display Name</th>
+          <th scope="col">Retrieve</th>
+        </tr>
+      </thead>
+      {% for secret in secrets %}
+      <tr>
+        <td scope="row">{{secret.id}}</td>
+        <td>{{secret.display_name}}</td>
+        <td>
+          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#tokenModal"
+            data-key-id="{{secret.key}}">View Token</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+
+    <!-- Modal -->
+    <div class="modal fade" id="tokenModal" tabindex="-1" role="dialog" aria-labelledby="tokenModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="tokenModal">Token Code</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            Token Code: <span id="token-code">Loading</span>
+            <br>
+            Time Remaining: <span id="token-time">0</span>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      var time_remaining = 0;
+      var current_url = null;
+      var modal = null;
+
+      setInterval(function () {
+        if (time_remaining <= 0 && current_url) {
+          $.get(current_url, function (data, status) {
+            modal.find('#token-code').text(data.token)
+            time_remaining = data.time_remaining
+          })
+        } else if (current_url) {
+          time_remaining = time_remaining - 1
+        }
+        if (modal) {
+          modal.find('#token-time').text(time_remaining)
+        }
+      }, 1000);
+      document.addEventListener("DOMContentLoaded", function (event) {
+        $('#tokenModal').on('show.bs.modal', function (event) {
+          var button = $(event.relatedTarget); // Button that triggered the modal
+          current_url = $SCRIPT_ROOT + '/secret/' + button.data('key-id'); // Extract info from data-* attributes
+          modal = $(this);
+          $.get(current_url, function (data, status) { 
+            time_remaining = data.time_remaining
+            modal.find('#token-code').text(data.token)
+            modal.find('#token-time').text(time_remaining)
+          })
+        })
+
+        $(document).on('hidden.bs.modal', function (e) {
+          current_url = null;
+          modal = null;
+          time_remaining = 0;
+        });
+
+        $('a#calculate').bind('click', function () {
+          $.ajax({
+            type: "POST",
+            url: $SCRIPT_ROOT + '/api/secrets',
+            data: JSON.stringify({
+              id: $('input[name="id"]').val(),
+              display_name: $('input[name="display_name"]').val(),
+              key: $('input[name="key"]').val()
+            }),
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+              location.reload(true);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+              alert("Failed to cancel subscription! Message:");
+            }
+          });
+          return false;
+        });
+
+      });
+    </script>
+    {% endblock %}

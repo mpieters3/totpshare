@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Add Token</h1>
+<form action="" method="post" novalidate autocomplete="off">
+    <p>Add a new factor</p>
+    {{ form.hidden_tag() }}
+    <div class="form-group">
+        {{ form.id.label }}
+        {{ form.id(size=16, class="form-control") }}
+        <small class="form-text text-muted">Unique identifier for the key being stored</small>
+    </div>
+    <div class="form-group">
+        {{ form.display_name.label }}
+        {{ form.display_name(size=32, class="form-control") }}
+        <small class="form-text text-muted">Friendlier name for the stored key</small>
+    </div>
+    <div class="form-group">
+        {{ form.secret.label }}
+        {{ form.secret(size=32, class="form-control") }}
+        <small class="form-text text-muted">The TOTP key</small>
+    </div>
+    <hr class="mb-4">
+    {{ form.submit(class="btn btn-primary btn-lg btn-block") }}
+</form>
+<br>
+<br>
+<table class="table table-striped">
+    <thead class="thead-dark">
+        <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Display Name</th>
+            <th scope="col">Delete</th>
+        </tr>
+    </thead>
+    {% for secret in secrets %}
+    <tr>
+        <td scope="row">{{secret.id}}</td>
+        <td>{{secret.display_name}}</td>
+        <td>
+            <form autocomplete="off" action="{{ url_for('delete_token', key=secret.key) }}" onsubmit="return confirm('Are you sure you want to delete {{secret.id}}')" method=post>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                <input type="submit" class="btn btn-primary" value="Delete">
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

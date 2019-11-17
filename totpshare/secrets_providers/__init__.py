@@ -55,10 +55,11 @@ class secretsprovider(metaclass=abc.ABCMeta):
         """
         pass
 
+
 from . import fileprovider
 
-def get_provider():
-    """ Returns the provider to use for secret retrieval and storage """
-
-    ## Hard code to file provider for now
-    return fileprovider.provider()
+class Secrets(fileprovider.provider):
+    """ Flask object wrapper for our provider in case we ever switch from fileprovider """
+    
+    def __init__(self, app):
+        fileprovider.provider.__init__(self, app)

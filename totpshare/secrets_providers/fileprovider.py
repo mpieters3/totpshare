@@ -6,6 +6,7 @@ import os
 import logging
 import tempfile
 import os.path
+from ..config import TOTP_SHARE_DEFAULT_KEY
 from . import secretsprovider, secretslist, secretsmetadata
 
 try:
@@ -15,29 +16,29 @@ except:
     raise ImportError("Unable to access Crypto")
 
 log = logging.getLogger('fileprovider')
-DEFAULT_KEY = 'A string that should never be used'
 
 class provider(secretsprovider):
     """ A file based provider for key lookup. Uses symmetric key encryption to avoid having them
     in plain text
      """
 
-    def __init__(self):
-        key = os.getenv('TOTPSHARE_FILE_ENCKEY', DEFAULT_KEY)
-        if(key == DEFAULT_KEY):
+    def __init__(self, app):
+        config = app.config
+        key = config['TOTPSHARE_FILE_ENCKEY']
+        if(key == TOTP_SHARE_DEFAULT_KEY):
             log.warn("No TOTPSHARE_FILE_ENCKEY found, secrets will be stored with the default key")
 
         self._block_size = AES.block_size
         self._key = hashlib.sha256(key.encode()).digest()
 
-        self._path = os.getenv('TOTPSHARE_FILE_PATH')
-        if(not self._path):
-            self._path = tempfile.mkdtemp(prefix='totp_')
-            log.debug("Temp folder created at %s", self._path)
+        self._path = os.path.join(os.getcwd(), config['TOTPSHARE_FILE_PATH'])
+            
+        if(not os.path.isdir(self._path)):
+            os.mkdir(self._path)
      
     def get_secret(self, key_id: str) -> str:
         key_id = key_id.strip("\\//") #make sure stuck in current path
-        with open(os.path.join(self._path, key_id.strip("\\//")), "rb") as f:
+        with open(os.path.join(self._path, key_id), "rb") as f:
             enc_secret = f.read()
             enc_secret = base64.b64decode(enc_secret)
             iv = enc_secret[:self._block_size]
@@ -67,7 +68,8 @@ class provider(secretsprovider):
         return file_name
 
     def delete_key(self, key_id: str):
-        pass
+        key_id = key_id.strip("\\//") #make sure stuck in current path
+        os.remove(os.path.join(self._path, key_id))
 
     def _pad(self, s):
         return s + (self._block_size - len(s) % self._block_size) * chr(self._block_size - len(s) % self._block_size)
