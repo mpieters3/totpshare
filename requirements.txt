@@ -4,7 +4,7 @@ chardet==3.0.4
 Click==7.0
 conjur-client==0.0.3
 coverage==4.5.4
-cryptography==2.8
+cryptography==3.2
 cryptojwt==0.7.10
 Flask==1.1.1
 Flask-Ext==0.1
